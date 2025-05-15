@@ -17,8 +17,7 @@ def fetch_fixtures():
             print(f"Procesando: {league}")
             fav, ag = fb.get_vs_and_teams_season_stats(
                 league=league,
-                season=season,
-                stats_type='all'
+                season=season
             )
             df = fav.rename(columns={"goals": "gf"}).merge(
                 ag.rename(columns={"goals": "ga"}), on="team"
