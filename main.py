@@ -1,3 +1,5 @@
+import os
+os.environ["MPLSOCCER_FONT"] = "off"
 import requests
 from datetime import datetime, timedelta
 import LanusStats as ls
