@@ -21,22 +21,10 @@ def fetch_fixtures():
                 stat="stats"
             )
 
-            # Detectar nombre correcto de columna para los equipos
-            team_col = 'team' if 'team' in fav.columns else 'squad'
+            print(f"Columnas fav: {fav.columns}")
+            print(f"Columnas ag: {ag.columns}")
 
-            df = fav.rename(columns={"goals": "gf", team_col: "team"}).merge(
-                ag.rename(columns={"goals": "ga", team_col: "team"}), on="team"
-            )
-
-            teams = df.to_dict(orient="records")
-            for i in range(0, len(teams) - 1, 2):
-                home = teams[i]
-                away = teams[i+1]
-                fixtures.append({
-                    "match": f"{home['team']} vs {away['team']}",
-                    "home_gf": home["gf"],
-                    "away_gf": away["gf"]
-                })
+            return []  # Detenemos aquí temporalmente
         except Exception as e:
             print(f"Error en {league}: {e}")
             continue
