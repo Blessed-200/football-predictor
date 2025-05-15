@@ -6,7 +6,7 @@ import LanusStats as ls
 # Desactivar fuentes externas (evita errores de visualización)
 os.environ["MPLSOCCER_FONT"] = "off"
 
-# TOKEN y CHAT_ID (insertados directamente como pediste)
+# TOKEN y CHAT_ID directamente aquí
 TELEGRAM_BOT_TOKEN = "7852899849:AAHGe4o-19s0wQThBpIqDD0gJ_F1ZctaYSw"
 TELEGRAM_CHAT_ID = "8083268965"
 
@@ -15,7 +15,7 @@ def fetch_fixtures_from_sofascore():
     tomorrow = datetime.now() + timedelta(days=1)
     date_str = tomorrow.strftime('%Y-%m-%d')
 
-    ss = ls.Sofascore()
+    ss = ls.SofaScore()  # CORREGIDO aquí
     fixtures = []
 
     try:
@@ -25,11 +25,11 @@ def fetch_fixtures_from_sofascore():
             home = fixture.get("homeTeam", {}).get("name", "Local")
             away = fixture.get("awayTeam", {}).get("name", "Visitante")
 
-            # Simulación de goles esperados (a mejorar luego con estadísticas reales)
+            # Simulación de goles esperados (por ahora)
             fixture_obj = {
                 "match": f"{home} vs {away}",
                 "league": league,
-                "expected_goals": 2.4  # puedes cambiar esta lógica después
+                "expected_goals": 2.4
             }
 
             fixtures.append(fixture_obj)
@@ -48,11 +48,10 @@ def compute_picks(fixtures):
                 "match": f["match"],
                 "league": f["league"],
                 "market": "Under 3.5 goles",
-                "odds": 1.60,  # asumido, luego lo sacarás por scrap
+                "odds": 1.60,
                 "value": 0.70 - 1 / 1.60
             })
 
-    # ordenamos por mayor valor esperado
     picks = sorted(picks, key=lambda x: x["value"], reverse=True)[:4]
     combined = []
 
