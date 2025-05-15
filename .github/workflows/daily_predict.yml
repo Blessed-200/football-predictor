@@ -1,0 +1,23 @@
+name: Daily Football Picks
+
+on:
+  schedule:
+    # Esto ejecuta el script cada día a las 05:00 UTC (ajustaremos luego)
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install deps
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run predictor
+        run: python main.py
