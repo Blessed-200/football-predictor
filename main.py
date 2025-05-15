@@ -18,11 +18,16 @@ def fetch_fixtures():
             fav, ag = fb.get_vs_and_teams_season_stats(
                 league=league,
                 season=season,
-                stat="stats"  # Valor correcto
+                stat="stats"
             )
-            df = fav.rename(columns={"goals": "gf"}).merge(
-                ag.rename(columns={"goals": "ga"}), on="team"
+
+            # Detectar nombre correcto de columna para los equipos
+            team_col = 'team' if 'team' in fav.columns else 'squad'
+
+            df = fav.rename(columns={"goals": "gf", team_col: "team"}).merge(
+                ag.rename(columns={"goals": "ga", team_col: "team"}), on="team"
             )
+
             teams = df.to_dict(orient="records")
             for i in range(0, len(teams) - 1, 2):
                 home = teams[i]
