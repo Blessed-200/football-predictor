@@ -1,13 +1,10 @@
-import os
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+# Token y Chat ID directamente en el código
+TELEGRAM_BOT_TOKEN = "7852899849:AAHGe4o-19s0wQThBpIqDD0gJ_F1ZctaYSw"
+TELEGRAM_CHAT_ID = "8083268965"
 
 def send_to_telegram(combos):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
-
     if not combos:
         text = "⚠️ No se generaron picks para mañana.\nRevisa si los promedios de goles eran altos."
     else:
@@ -19,8 +16,8 @@ def send_to_telegram(combos):
                 text += f"- {pick['match']} | {pick['market']} | cuota {pick['odds']:.2f}\n"
 
     response = requests.post(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
+        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+        json={"chat_id": TELEGRAM_CHAT_ID, "text": text, "parse_mode": "Markdown"}
     )
     
     print("Estado del envío:", response.status_code)
