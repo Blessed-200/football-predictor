@@ -1,10 +1,10 @@
-import os
 import requests
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 import LanusStats as ls
 
-load_dotenv()
+# Reemplazo de secrets por valores directos
+TELEGRAM_BOT_TOKEN = "7852899849:AAHGe4o-19s0wQThBpIqDD0gJ_F1ZctaYSw"
+TELEGRAM_CHAT_ID = "8083268965"
 
 def fetch_fixtures():
     fb = ls.Fbref()
@@ -21,7 +21,7 @@ def fetch_fixtures():
                 stat="stats"
             )
 
-            # Usamos los nombres correctos de las columnas
+            # Renombrar columnas y unir por equipo
             df = fav.rename(columns={"Squad": "team", "Gls": "gf"}).merge(
                 ag.rename(columns={"Squad": "team", "Gls": "ga"}), on="team"
             )
@@ -29,12 +29,13 @@ def fetch_fixtures():
             teams = df.to_dict(orient="records")
             for i in range(0, len(teams) - 1, 2):
                 home = teams[i]
-                away = teams[i+1]
+                away = teams[i + 1]
                 fixtures.append({
                     "match": f"{home['team']} vs {away['team']}",
                     "home_gf": home["gf"],
                     "away_gf": away["gf"]
                 })
+
         except Exception as e:
             print(f"Error en {league}: {e}")
             continue
@@ -52,6 +53,7 @@ def compute_picks(fixtures):
                 "odds": 1.50,
                 "value": 0.70 - 1/1.50
             })
+
     picks = sorted(picks, key=lambda x: x["value"], reverse=True)[:4]
     combined = []
     for i in range(0, len(picks), 2):
@@ -59,8 +61,6 @@ def compute_picks(fixtures):
     return combined
 
 def send_to_telegram(combos):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
     if not combos:
         text = "⚠️ No se generaron picks para mañana."
     else:
@@ -70,10 +70,14 @@ def send_to_telegram(combos):
             text += f"\n*Combinada {idx}* (cuota {cuota:.2f}):\n"
             for pick in combo:
                 text += f"- {pick['match']} | {pick['market']} | cuota {pick['odds']:.2f}\n"
-    requests.post(
-        f"https://api.telegram.org/bot{token}/sendMessage",
-        json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
+
+    response = requests.post(
+        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+        json={"chat_id": TELEGRAM_CHAT_ID, "text": text, "parse_mode": "Markdown"}
     )
+
+    print("Estado del envío:", response.status_code)
+    print("Respuesta:", response.text)
 
 if __name__ == "__main__":
     fixtures = fetch_fixtures()
