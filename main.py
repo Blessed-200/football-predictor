@@ -29,7 +29,7 @@ def fetch_fixtures_and_stats():
     for league in ligas:
         try:
             print(f"Scrapeando liga: {league}")
-            tabla = fotmob.get_season_tables(league=league, season='2024/2025', table_type='total')
+            tabla = fotmob.get_season_tables(league=league, season='2024/2025')
             teams = tabla['team'].tolist()
 
             # Obtener estadísticas desde FBRef
