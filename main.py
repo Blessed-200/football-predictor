@@ -16,7 +16,6 @@ def fetch_fixtures():
         try:
             print(f"Procesando: {league}")
             fav, ag = fb.get_vs_and_teams_season_stats(
-                page='fbref',
                 league=league,
                 season=season,
                 stats_type='all'
@@ -60,7 +59,7 @@ def send_to_telegram(combos):
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     if not combos:
-        text = "No se generaron picks para mañana."
+        text = "⚠️ No se generaron picks para mañana."
     else:
         text = "🎯 *Picks para mañana:*\n"
         for idx, combo in enumerate(combos, 1):
