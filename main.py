@@ -1,44 +1,81 @@
+import os
 import requests
 from datetime import datetime, timedelta
-from LanusStats.sofascore import Sofascore
+from dotenv import load_dotenv
+import LanusStats as ls
 
-# Telegram directo en el código
-TELEGRAM_BOT_TOKEN = "7852899849:AAHGe4o-19s0wQThBpIqDD0gJ_F1ZctaYSw"
-TELEGRAM_CHAT_ID = "8083268965"
+load_dotenv()
 
-def get_fixtures_for_tomorrow():
-    sofascore = Sofascore()
-    today = datetime.utcnow()
-    tomorrow = today + timedelta(days=1)
-    date_str = tomorrow.strftime('%Y-%m-%d')
+def fetch_fixtures():
+    fb = ls.Fbref()
+    leagues = ['La Liga', 'Premier League', 'Serie A', 'Bundesliga', 'Ligue 1']
+    season = '2024-2025'
+    fixtures = []
 
-    print(f"Obteniendo partidos para el {date_str}...\n")
-    matches = sofascore.get_fixtures_by_date(date_str)
-    
-    juegos = []
-    for match in matches:
-        equipos = match.get("teams")
-        if equipos:
-            home = equipos.get("home", {}).get("name", "")
-            away = equipos.get("away", {}).get("name", "")
-            league = match.get("tournament", {}).get("name", "")
-            if home and away:
-                juegos.append(f"{league}: {home} vs {away}")
-    return juegos
+    for league in leagues:
+        try:
+            print(f"Procesando: {league}")
+            fav, ag = fb.get_vs_and_teams_season_stats(
+                league=league,
+                season=season,
+                stat="stats"
+            )
 
-def send_to_telegram(text):
-    response = requests.post(
-        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-        json={"chat_id": TELEGRAM_CHAT_ID, "text": text, "parse_mode": "Markdown"}
+            # Usamos los nombres correctos de las columnas
+            df = fav.rename(columns={"Squad": "team", "Gls": "gf"}).merge(
+                ag.rename(columns={"Squad": "team", "Gls": "ga"}), on="team"
+            )
+
+            teams = df.to_dict(orient="records")
+            for i in range(0, len(teams) - 1, 2):
+                home = teams[i]
+                away = teams[i+1]
+                fixtures.append({
+                    "match": f"{home['team']} vs {away['team']}",
+                    "home_gf": home["gf"],
+                    "away_gf": away["gf"]
+                })
+        except Exception as e:
+            print(f"Error en {league}: {e}")
+            continue
+
+    return fixtures
+
+def compute_picks(fixtures):
+    picks = []
+    for f in fixtures:
+        total = f["home_gf"] + f["away_gf"]
+        if total <= 3.5:
+            picks.append({
+                "match": f["match"],
+                "market": "Under 3.5 goles",
+                "odds": 1.50,
+                "value": 0.70 - 1/1.50
+            })
+    picks = sorted(picks, key=lambda x: x["value"], reverse=True)[:4]
+    combined = []
+    for i in range(0, len(picks), 2):
+        combined.append(picks[i:i+2])
+    return combined
+
+def send_to_telegram(combos):
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    if not combos:
+        text = "⚠️ No se generaron picks para mañana."
+    else:
+        text = "🎯 *Picks para mañana:*\n"
+        for idx, combo in enumerate(combos, 1):
+            cuota = combo[0]["odds"] * combo[1]["odds"]
+            text += f"\n*Combinada {idx}* (cuota {cuota:.2f}):\n"
+            for pick in combo:
+                text += f"- {pick['match']} | {pick['market']} | cuota {pick['odds']:.2f}\n"
+    requests.post(
+        f"https://api.telegram.org/bot{token}/sendMessage",
+        json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
     )
-    print("Estado del envío:", response.status_code)
-    print("Respuesta de Telegram:", response.text)
 
 if __name__ == "__main__":
-    fixtures = get_fixtures_for_tomorrow()
-    if fixtures:
-        mensaje = "📅 *Partidos para mañana:*\n\n" + "\n".join(f"- {f}" for f in fixtures[:20])
-    else:
-        mensaje = "⚠️ No se encontraron partidos para mañana."
-
-    send_to_telegram(mensaje)
+    fixtures = fetch_fixtures()
+    combos = compute_picks(fixtures)
+    send_to_telegram(combos)
