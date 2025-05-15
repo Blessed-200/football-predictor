@@ -18,7 +18,7 @@ def fetch_fixtures():
             fav, ag = fb.get_vs_and_teams_season_stats(
                 league=league,
                 season=season,
-                stat="standard"  # <-- este es el parámetro que faltaba
+                stat="stats"  # Valor correcto
             )
             df = fav.rename(columns={"goals": "gf"}).merge(
                 ag.rename(columns={"goals": "ga"}), on="team"
