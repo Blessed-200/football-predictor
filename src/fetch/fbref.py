@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-# Importamos la clase FBref del módulo ScraperFC
-from LanusStats.scraperfc.fbref import FBref as ScraperFBref
+# Importamos la clase FBref del módulo ScraperFC en minúsculas
+from lanusstats.scraperfc.fbref import FBref as ScraperFBref
 
 class FBrefFetcher:
     """
