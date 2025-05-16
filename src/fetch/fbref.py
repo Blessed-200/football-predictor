@@ -1,6 +1,5 @@
-import re
 from datetime import datetime, timedelta
-from LanusStats.scraperfc.fbref import FBref
+from LanusStats import Fbref
 
 class FBrefFetcher:
     """
@@ -9,7 +8,7 @@ class FBrefFetcher:
 
     def __init__(self, wait_time: int = 7):
         # tiempo de espera entre peticiones (por defecto 7s)
-        self.scraper = FBref(wait_time=wait_time)
+        self.scraper = Fbref(wait_time=wait_time)
 
     def get_tomorrow_match_links(self, season: str, league: str):
         """
