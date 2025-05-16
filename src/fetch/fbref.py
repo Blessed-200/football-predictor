@@ -6,9 +6,9 @@ class FBrefFetcher:
     Clase para obtener partidos de FBref filtrados por fecha (mañana)
     """
 
-    def __init__(self, wait_time: int = 7):
-        # tiempo de espera entre peticiones (por defecto 7s)
-        self.scraper = Fbref(wait_time=wait_time)
+    def __init__(self):
+        # Instanciamos sin parámetros
+        self.scraper = Fbref()
 
     def get_tomorrow_match_links(self, season: str, league: str):
         """
