@@ -6,10 +6,17 @@ from urllib.parse import urljoin
 class FBrefSimpleFetcher:
     """
     Scraper ligero de FBref para obtener enlaces de partidos
-    filtrados por fecha (mañana).
+    filtrados por fecha (mañana), usando User-Agent válido.
     """
 
     BASE_URL = "https://fbref.com"
+    HEADERS = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/114.0.0.0 Safari/537.36"
+        )
+    }
 
     def __init__(self, league_url: str):
         """
@@ -22,7 +29,7 @@ class FBrefSimpleFetcher:
         """
         Descarga la página de la liga y extrae todos los enlaces de partidos.
         """
-        resp = requests.get(self.league_url)
+        resp = requests.get(self.league_url, headers=self.HEADERS)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "lxml")
 
@@ -33,7 +40,7 @@ class FBrefSimpleFetcher:
             if "/en/matches/" in href:
                 full = urljoin(self.BASE_URL, href)
                 links.append(full)
-        # Eliminamos duplicados
+        # Eliminamos duplicados y ordenamos
         return sorted(set(links))
 
     def get_tomorrow_links(self):
