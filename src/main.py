@@ -1,26 +1,35 @@
 #!/usr/bin/env python3
-print("⚙️  main.py arrancó correctamente usando SofaScore API")
+print("⚙️  main.py: orquestador completo")
 
-from fetch.sofa_api_fetcher import SofaAPIFetcher
-from datetime import datetime
+from model.predictor import build_whole_prediction
+import os
+import requests
+
+def send_to_telegram(combos):
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+    if not combos or not any(combos):
+        text = "⚠️ No se generaron picks para mañana."
+    else:
+        text = "🎯 *Picks para mañana:*\n"
+        for idx, combo in enumerate(combos, 1):
+            cuota = combo[0]['odds'] * combo[1]['odds']
+            text += f"\n*Combinada {idx}* (cuota {cuota:.2f}):\n"
+            for pick in combo:
+                text += f"- {pick['fixture']} | {pick['market']} | cuota {pick['odds']:.2f}\n"
+
+    resp = requests.post(
+        f"https://api.telegram.org/bot{token}/sendMessage",
+        json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
+    )
+    print("Telegram status:", resp.status_code, resp.text)
 
 def main():
-    print("🔍 Obteniendo fixtures de mañana vía SofaScore API…")
-    fetcher = SofaAPIFetcher()
-    fixtures = fetcher.get_tomorrow_fixtures()
-
-    count = len(fixtures)
-    print(f"✅ Se encontraron {count} partidos para mañana.\n")
-
-    if not fixtures:
-        print("⚠️ No hay partidos para mañana (o fallo de API).")
-        return
-
-    print("🔗 Lista de partidos:")
-    for f in fixtures:
-        # convertimos timestamp a fecha legible
-        dt = datetime.utcfromtimestamp(f["start"]).strftime("%Y-%m-%d %H:%M UTC")
-        print(f"- [{f['league']}] {f['home']} vs {f['away']} (horario: {dt})")
+    # 1) Calcular las combinadas
+    combos = build_whole_prediction()
+    # 2) Enviar notificación
+    send_to_telegram(combos)
 
 if __name__ == "__main__":
     main()
