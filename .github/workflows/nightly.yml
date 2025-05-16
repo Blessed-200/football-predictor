@@ -1,16 +1,13 @@
 name: Nightly Football Prediction
 
-# Ejecutar cada día a las 22:00 hora local (UTC-8 = 06:00 UTC siguiente día)
 on:
   schedule:
-    - cron: '6 6 * * *'       # 06:00 UTC = 22:00 PST anterior
-  workflow_dispatch:          # Permite ejecución manual
+    - cron: '6 6 * * *'      # 06:00 UTC = 22:00 PST anterior
+  workflow_dispatch:
 
 jobs:
   predict:
     runs-on: ubuntu-latest
-
-    # Variables de entorno (ya con tu token público)
     env:
       TELEGRAM_BOT_TOKEN: 7852899849:AAHGe4o-19s0wQThBpIqDD0gJ_F1ZctaYSw
       TELEGRAM_CHAT_ID: 8083268965
@@ -27,6 +24,15 @@ jobs:
 
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
+
+      # Pasos de depuración
+      - name: Debug: Listar contenido del repositorio
+        run: ls -R .
+
+      - name: Debug: Mostrar directorio de trabajo y versión de Python
+        run: |
+          pwd
+          python --version
 
       - name: Run prediction script
         run: python src/main.py
