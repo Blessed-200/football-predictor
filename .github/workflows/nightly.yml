@@ -1,1 +1,8 @@
-
+name: Nightly Prediction
+on:
+  workflow_dispatch:
+jobs:
+  dummy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow configurado"
