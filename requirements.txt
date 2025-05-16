@@ -2,5 +2,4 @@ LanusStats
 requests
 pandas
 python-dotenv
-IPython
-lxml
+SQLAlchemy
