@@ -1,30 +1,22 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+print("⚙️  main.py arrancó correctamente usando SofaScore")
 
-# Pista de arranque
-print("⚙️  ¡main.py arrancó correctamente!")
-
-from fetch.fbref_simple import FBrefSimpleFetcher
+from fetch.sofascore_fetcher import SofaFetcher
 
 def main():
-    # Pistas de depuración
-    print("🔍 Iniciando la búsqueda de enlaces…")
-    print("📁 Usando FBrefSimpleFetcher para La Liga 2024-2025")
+    print("🔍 Obteniendo fixtures de mañana desde SofaScore…")
+    fetcher = SofaFetcher()
+    fixtures = fetcher.get_fixtures_for_tomorrow()
 
-    # URL de la temporada de La Liga 2024-25 en FBref
-    liga_url = "https://fbref.com/en/comps/12/2024-2025/La-Liga-Stats"
-    fetcher = FBrefSimpleFetcher(league_url=liga_url)
+    count = len(fixtures)
+    print(f"✅ Se encontraron {count} partidos para mañana.\n")
 
-    print("📥 Descargando enlaces de partidos de mañana…")
-    links = fetcher.get_tomorrow_links()
-
-    print(f"✅ Se encontraron {len(links)} partidos para mañana.\n")
-    if links:
-        print("🔗 Enlaces:")
-        for link in links:
-            print(link)
+    if count:
+        print("🔗 Lista de partidos:")
+        for f in fixtures:
+            print(f"- {f['league']}: {f['home']} vs {f['away']}")
     else:
-        print("⚠️ No se encontraron enlaces para mañana.")
+        print("⚠️ No se encontraron partidos para mañana.")
 
 if __name__ == "__main__":
     main()
