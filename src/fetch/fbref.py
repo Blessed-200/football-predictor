@@ -1,14 +1,16 @@
 from datetime import datetime, timedelta
-from LanusStats import Fbref
+# Importamos la clase FBref del módulo ScraperFC
+from LanusStats.scraperfc.fbref import FBref as ScraperFBref
 
 class FBrefFetcher:
     """
-    Clase para obtener partidos de FBref filtrados por fecha (mañana)
+    Clase para obtener partidos de FBref filtrados por fecha (mañana),
+    usando el scraper ScraperFC.fbref.FBref
     """
 
     def __init__(self):
-        # Instanciamos sin parámetros
-        self.scraper = Fbref()
+        # Instanciamos el ScraperFC
+        self.scraper = ScraperFBref()
 
     def get_tomorrow_match_links(self, season: str, league: str):
         """
