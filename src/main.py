@@ -6,7 +6,8 @@ def main():
     league = "La Liga"
 
     print(f"Obteniendo partidos de mañana para {league} {season}...")
-    fetcher = FBrefFetcher(wait_time=7)
+    # Instanciamos sin argumentos
+    fetcher = FBrefFetcher()
     links = fetcher.get_tomorrow_match_links(season=season, league=league)
 
     count = len(links)
