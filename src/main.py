@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+
+# Aseguramos que 'src/' esté en sys.path para importar paquetes locales
+SRC_DIR = os.path.dirname(__file__)
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 print("⚙️  main.py: orquestador completo")
 
 from model.predictor import build_whole_prediction
-import os
 import requests
 
 def send_to_telegram(combos):
